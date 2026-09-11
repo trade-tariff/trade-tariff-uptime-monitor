@@ -5,12 +5,12 @@ require 'uri'
 PAGERDUTY_EVENTS_URL = 'https://events.pagerduty.com/v2/enqueue'
 
 def lambda_handler(event:, context:)
-  routing_key = ENV.fetch('PAGERDUTY_ROUTING_KEY', '')
+  routing_key = ENV.fetch('PAGERDUTY_ROUTING_KEY', '').strip
 
-  if routing_key.empty?
-    puts 'PagerDuty routing key not configured — skipping alert'
-    return
-  end
+  # Failing loudly is the whole point. This function is the last hop before a
+  # human gets paged, so a missing key must surface as a Lambda error rather
+  # than a successful invocation that pages nobody.
+  raise 'PAGERDUTY_ROUTING_KEY is not set: cannot deliver PagerDuty alert' if routing_key.empty?
 
   event['Records'].each do |record|
     message    = JSON.parse(record.dig('Sns', 'Message'))

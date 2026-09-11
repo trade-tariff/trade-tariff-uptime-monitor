@@ -40,7 +40,9 @@ functions:
     memorySize: 128
     role: !GetAtt PagerdutyRole.Arn
     environment:
-      PAGERDUTY_ROUTING_KEY: ${env:PAGERDUTY_ROUTING_KEY, ''}
+      # Deliberately has no default. A missing key must fail the deploy, not
+      # silently ship a function that cannot page anyone.
+      PAGERDUTY_ROUTING_KEY: ${env:PAGERDUTY_ROUTING_KEY}
     package:
       patterns:
         - "!**"

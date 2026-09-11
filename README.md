@@ -39,7 +39,12 @@ aws secretsmanager put-secret-value \
   --secret-string '{"routing_key":"<your-integration-key>"}'
 ```
 
-Then redeploy so Terraform picks up the new value and injects it into the Lambda environment. Until the key is set the Lambda skips PagerDuty calls silently — metrics and alarms still work.
+Then redeploy so the new value is injected into the Lambda environment.
+
+The routing key is required. A deploy without `PAGERDUTY_ROUTING_KEY` set fails
+before it reaches AWS, and a pagerduty Lambda invoked without one raises rather
+than returning successfully without paging anyone. Alarm on the pagerduty
+function's `Errors` metric so a key that goes missing after deploy is visible.
 
 ## Deployments
 
